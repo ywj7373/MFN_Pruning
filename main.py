@@ -178,7 +178,7 @@ def load(model):
     for layer_index, filter_index in filters_to_prune.items():
         model, modules = prune_MFN(model, layer_index, *filter_index, use_cuda=True)
 
-    model.load_state_dict(torch.load(args.saved_model_path, map_location=lambda storage, loc: storage))
+    model.load_state_dict(torch.load(args.saved_pruned_model_path, map_location=lambda storage, loc: storage))
 
 
 def loadPrunedFilters(file_path):
@@ -206,7 +206,7 @@ def savePrunedFilters(file_path, filters_to_prune):
     f = open(file_path, "w")
     for k in filters_to_prune.keys():
         filters = filters_to_prune[k]
-        f.write(k + ":")
+        f.write(str(k) + ":")
         for filter in filters:
             f.write(str(filter) + ",")
         f.write("\n")

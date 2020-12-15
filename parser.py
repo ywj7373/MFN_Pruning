@@ -12,6 +12,7 @@ parser.add_argument("--data_path", type=str, default=base_path)
 parser.add_argument("--output_path", type=str, default=base_path + "output")
 parser.add_argument("--ckpt_path", type=str, default=base_path + "output/ckpt")
 parser.add_argument("--saved_model_path", type=str, default=base_path + "output/MobileFaceNet")
+parser.add_argument("--saved_pruned_model_path", type=str, default=base_path + "output/MFN_weights_pruned_3")
 parser.add_argument("--pruned_filters_path", type=str, default="/content/MFN_Pruning/pruned_filters.txt")
 
 # Checkpoints

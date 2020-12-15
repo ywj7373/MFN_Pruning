@@ -32,6 +32,7 @@ class FilterPrunner:
         self.gradients = []
         self.grad_index = 0
         self.activation_to_layer = {}
+
         activation_index = 0
         Res_layers = (7, 10, 13, 16, 22, 25, 28, 31, 34, 37, 43, 46)  # res layers requiring shortcuts
         prunning_layers = (
