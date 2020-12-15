@@ -75,6 +75,10 @@ def train(model, dataloader, epochs=args.epoch_size):
                     save_path = Path(args.ckpt_path)
                     torch.save(model.state_dict(),
                                save_path / ('model_epoch:{}_step:{}.pth'.format(epoch, total_iters)))
+                    torch.save(margin.state_dict(),
+                               save_path / ('head_epoch:{}_step:{}.pth'.format(epoch, total_iters)))
+                    torch.save(criterion.state_dict(),
+                               save_path / ('optimizer_epoch:{}_step:{}.pth'.format(epoch, total_iters)))
 
 
 def prune(model, dataloader):
