@@ -172,7 +172,7 @@ def getFiltersToPrune(model, prunner):
     return filters_to_prune
 
 
-def load(model):
+def loadModel(model):
     filters_to_prune = loadPrunedFilters(args.pruned_filters_path)
 
     for layer_index, filter_index in filters_to_prune.items():
@@ -203,7 +203,7 @@ def loadPrunedFilters(file_path):
 
 
 def savePrunedFilters(file_path, filters_to_prune):
-    f = open(file_path, "w")
+    f = open(file_path, "w+")
     for k in filters_to_prune.keys():
         filters = filters_to_prune[k]
         f.write(str(k) + ":")
@@ -321,4 +321,4 @@ if __name__ == '__main__':
     elif args.options == "prune":
         prune(model, dataloader)
     elif args.options == "load":
-        load(model)
+        loadModel(model)
