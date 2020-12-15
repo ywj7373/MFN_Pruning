@@ -5,12 +5,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--options", type=str, default="train", choices=['train', 'prune', 'test'])
 
 # Path
-base_path = 'C:/Users/ywj73/Downloads/faces_emore'
+base_path = '/content/drive/MyDrive/data/'
 parser.add_argument("--tfrecord_path", type=str, default="/content/drive/MyDrive/faces_ms1m_112x112/tfrecords/tran.tfrecords")
 parser.add_argument("--data_path", type=str, default=base_path)
-parser.add_argument("--output_path", type=str, default=base_path + "./output")
-parser.add_argument("--ckpt_path", type=str, default=base_path + "./output/ckpt")
-parser.add_argument("--saved_model_path", type=str, default=base_path + "./output/MobileFaceNet")
+parser.add_argument("--output_path", type=str, default=base_path + "output")
+parser.add_argument("--ckpt_path", type=str, default=base_path + "output/ckpt")
+parser.add_argument("--saved_model_path", type=str, default=base_path + "output/MobileFaceNet")
 
 # Checkpoints
 parser.add_argument("--summary_interval", type=int, default=1000)
