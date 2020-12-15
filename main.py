@@ -85,7 +85,7 @@ def prune(model, dataloader):
 
     print("Check the initial model accuracy...")
     since = time.time()
-    validation(model)
+    #validation(model)
     print("initial test :: time cost is {:.2f} s".format(time.time() - since))
 
     # Ordered module list for easier indexing and pruning
@@ -228,11 +228,11 @@ def validation(model):
     accuracy, best_threshold, roc_curve_tensor = _evaluate(model, lfw, lfw_issame, 10, True)
     print('lfw accuracy: {}, threshold: {}'.format(accuracy, best_threshold))
 
-    accuracy, best_threshold, roc_curve_tensor = _evaluate(model, cfp_fp, cfp_fp_issame, 10, True)
-    print('cfp_fp accuracy: {}, threshold: {}'.format(accuracy, best_threshold))
-
-    accuracy, best_threshold, roc_curve_tensor = _evaluate(model, agedb_30, agedb_30_issame, 10, True)
-    print('agedb_30 accuracy: {}, threshold: {}'.format(accuracy, best_threshold))
+    # accuracy, best_threshold, roc_curve_tensor = _evaluate(model, cfp_fp, cfp_fp_issame, 10, True)
+    # print('cfp_fp accuracy: {}, threshold: {}'.format(accuracy, best_threshold))
+    #
+    # accuracy, best_threshold, roc_curve_tensor = _evaluate(model, agedb_30, agedb_30_issame, 10, True)
+    # print('agedb_30 accuracy: {}, threshold: {}'.format(accuracy, best_threshold))
 
 
 def _evaluate(model, carray, issame, nrof_folds=10, tta=True):
