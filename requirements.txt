@@ -8,3 +8,4 @@ matplotlib~=3.3.1
 scipy~=1.5.2
 bcolz~=1.2.1
 mxnet~=1.5.0
+tfrecord

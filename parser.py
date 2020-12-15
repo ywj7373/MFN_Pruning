@@ -13,7 +13,7 @@ parser.add_argument("--ckpt_path", type=str, default=base_path + "output/ckpt")
 parser.add_argument("--saved_model_path", type=str, default=base_path + "output/MobileFaceNet")
 
 # Checkpoints
-parser.add_argument("--summary_interval", type=int, default=1000)
+parser.add_argument("--summary_interval", type=int, default=100)
 parser.add_argument("--save_interval", type=int, default=5000)
 parser.add_argument("--evaluate_interval", type=int, default=5000)
 

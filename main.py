@@ -82,7 +82,6 @@ def prune(model, dataloader):
     save_dir = args.output_path
 
     model.load_state_dict(torch.load(args.saved_model_path, map_location=lambda storage, loc: storage))
-    print(model)
 
     print("Check the initial model accuracy...")
     since = time.time()
@@ -91,7 +90,6 @@ def prune(model, dataloader):
 
     # Ordered module list for easier indexing and pruning
     modules = rearrange(model)
-    print(modules)
 
     # Make sure all the layers are trainable
     for param in model.parameters():
@@ -247,20 +245,20 @@ def _evaluate(model, carray, issame, nrof_folds=10, tta=True):
             batch = torch.tensor(carray[idx:idx + args.batch_size])
             if tta:
                 flipped = hflip_batch(batch)
-                emb_batch = model(batch.to(device)) + model(flipped.to(device))
-                embeddings[idx:idx + args.batch_size] = l2_norm(emb_batch).cpu()
+                emb_batch = model(batch) + model(flipped)
+                embeddings[idx:idx + args.batch_size] = l2_norm(emb_batch)
             else:
-                embeddings[idx:idx + args.batch_size] = model(batch.to(device)).cpu()
+                embeddings[idx:idx + args.batch_size] = model(batch)
             idx += args.batch_size
 
         if idx < len(carray):
             batch = torch.tensor(carray[idx:])
             if tta:
                 flipped = hflip_batch(batch)
-                emb_batch = model(batch.to(device)) + model(flipped.to(device))
-                embeddings[idx:] = l2_norm(emb_batch).cpu()
+                emb_batch = model(batch) + model(flipped)
+                embeddings[idx:] = l2_norm(emb_batch)
             else:
-                embeddings[idx:] = model(batch.to(device)).cpu()
+                embeddings[idx:] = model(batch)
 
     tpr, fpr, accuracy, best_thresholds = evaluate(embeddings, issame, nrof_folds)
     buf = gen_plot(fpr, tpr)
