@@ -32,7 +32,7 @@ def train(model, dataloader, epochs=args.epoch_size):
     criterion = torch.nn.CrossEntropyLoss().to(device)
     optimizer_ft = optim.SGD([
         {'params': model.parameters(), 'weight_decay': 5e-4},
-        {'params': margin.parameters(), 'weight_decay': 5e-4}], lr=0.001, momentum=0.9, nesterov=True)
+        {'params': margin.parameters(), 'weight_decay': 5e-4}], lr=0.01, momentum=0.9, nesterov=True)
 
     exp_lr_scheduler = lr_scheduler.MultiStepLR(optimizer_ft, milestones=[1], gamma=0.3)
 
@@ -184,16 +184,18 @@ def loadModel(model):
 def loadPrunedFilters(file_path):
     f = open(file_path, "r")
     filters_to_prune = {}
+
     while True:
         line = f.readline()
-        line_split = line.split(":")
-        layer = int(line_split[0])
-        if layer not in filters_to_prune:
-            filters_to_prune[layer] = []
+        if line != "":
+            line_split = line.split(":")
+            layer = int(line_split[0])
+            if layer not in filters_to_prune:
+                filters_to_prune[layer] = []
 
-        filters = line_split[1].split(",")
-        for filter in filters:
-            filters_to_prune[layer].append(filter)
+            filters = line_split[1].split(",")[:-1]
+            for filter in filters:
+                filters_to_prune[layer].append(int(filter))
 
         if not line:
             break
@@ -203,7 +205,7 @@ def loadPrunedFilters(file_path):
 
 
 def savePrunedFilters(file_path, filters_to_prune):
-    f = open(file_path, "w+")
+    f = open(file_path, "a")
     for k in filters_to_prune.keys():
         filters = filters_to_prune[k]
         f.write(str(k) + ":")
