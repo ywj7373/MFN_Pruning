@@ -7,7 +7,6 @@ import torch.utils.data as data
 from PIL import Image
 from torch.optim import lr_scheduler
 from torchvision import transforms as trans
-import tensorflow as tf
 
 from evaluation import evaluate, hflip_batch, gen_plot
 from model.model import *
@@ -81,9 +80,6 @@ def train(model, dataloader, epochs=args.epoch_size):
 def prune(model, dataloader):
     # Check output directory
     save_dir = args.output_path
-    if os.path.exists(save_dir):
-        raise NameError('model dir exists!')
-    os.makedirs(save_dir)
 
     model.load_state_dict(torch.load(args.saved_model_path, map_location=lambda storage, loc: storage))
     print(model)
@@ -155,7 +151,9 @@ def getFiltersToPrune(model, prunner):
 
     for i_batch, det in enumerate(dataloader):
         printProgressBar(i_batch, 10000, prefix='Progress:', suffix='Complete', length=50)
-        img, label = det[0].to(device), det[1].to(device)
+        img, label = det["image_raw"].to(device), det["label"].numpy()
+        label = np.reshape(label, [-1]).astype(np.int64)
+        label = torch.from_numpy(label).to(device)
 
         # zero the parameter gradients
         model.zero_grad()
