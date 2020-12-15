@@ -19,8 +19,8 @@ from pruning.prune_MFN import prune_MFN
 def load_data():
     data_path = Path(args.data_path)
     # dataset_train, _ = get_train_dataset(data_path / 'imgs')
-    dataset_train = get_dataset(args.tfrecord_path)
-    dataloader = data.DataLoader(dataset_train, batch_size=args.batch_size, num_workers=2)
+    dataset_train = get_dataset(args.tfrecord_path, args.index_path)
+    dataloader = data.DataLoader(dataset_train, batch_size=args.batch_size)
 
     print('Training Data Loaded!')
 
@@ -85,7 +85,7 @@ def prune(model, dataloader):
 
     print("Check the initial model accuracy...")
     since = time.time()
-    #validation(model)
+    validation(model)
     print("initial test :: time cost is {:.2f} s".format(time.time() - since))
 
     # Ordered module list for easier indexing and pruning
@@ -161,7 +161,8 @@ def getFiltersToPrune(model, prunner):
             output = margin(raw_logits, label)
             loss = criterion(output, label)
             loss.backward()
-        if i_batch == 10000:  # only use 1/10 train data
+
+        if i_batch == 100:  # only use 1/10 train data
             break
 
     prunner.normalize_ranks_per_layer()

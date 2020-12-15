@@ -68,9 +68,9 @@ def decode_image(features):
     return features
 
 
-def get_dataset(tfrecord_path):
+def get_dataset(tfrecord_path, index_path):
     description = {"image_raw": "byte", "label": "int"}
-    dataset = tfrecord.torch.TFRecordDataset(tfrecord_path, index_path=None, description=description,
+    dataset = tfrecord.torch.TFRecordDataset(tfrecord_path, index_path=index_path, description=description,
                                              transform=decode_image)
     return dataset
 

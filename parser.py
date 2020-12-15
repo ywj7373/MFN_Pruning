@@ -6,6 +6,7 @@ parser.add_argument("--options", type=str, default="train", choices=['train', 'p
 
 # Path
 base_path = '/content/drive/MyDrive/data/'
+parser.add_argument("--index_path", type-str, default=base_path + "output/ex.index")
 parser.add_argument("--tfrecord_path", type=str, default="/content/drive/MyDrive/faces_ms1m_112x112/tfrecords/tran.tfrecords")
 parser.add_argument("--data_path", type=str, default=base_path)
 parser.add_argument("--output_path", type=str, default=base_path + "output")
