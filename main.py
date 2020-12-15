@@ -227,7 +227,7 @@ def total_num_filters(modules):
 
 
 def validation(model):
-    agedb_30, cfp_fp, lfw, agedb_30_issame, cfp_fp_issame, lfw_issame = get_val_data(args.data_path)
+    agedb_30, cfp_fp, lfw, agedb_30_issame, cfp_fp_issame, lfw_issame = get_val_data(Path(args.data_path))
 
     accuracy, best_threshold, roc_curve_tensor = _evaluate(model, lfw, lfw_issame, 10, True)
     print('lfw accuracy: {}, threshold: {}'.format(accuracy, best_threshold))
