@@ -1,8 +1,6 @@
 numpy==1.16.2
 pandas==0.25.0
 pyzmq==20.0.0
-torch==1.7.1
-torchvision==0.8.2
 tqdm==4.36.1
 pillow~=8.0.1
 scikit-learn~=0.23.2

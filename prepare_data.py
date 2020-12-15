@@ -7,9 +7,12 @@ import torchvision.transforms as transforms
 from PIL import Image, ImageFile
 from torchvision import transforms as trans
 from torchvision.datasets import ImageFolder
+from tfrecord.torch.dataset import TFRecordDataset
+import tfrecord
 from tqdm import tqdm
 from pathlib import Path
 from parser import args
+import io
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -50,6 +53,26 @@ def load_bin(path, rootdir, transform, image_size=[112, 112]):
     print(data.shape)
     np.save(str(rootdir) + '_list', np.array(issame_list))
     return data, issame_list
+
+
+def decode_image(features):
+    train_transform = trans.Compose([
+        trans.RandomHorizontalFlip(),
+        trans.ToTensor(),
+        trans.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+    ])
+
+    image = Image.open(io.BytesIO(features["image_raw"]))
+
+    features["image_raw"] = train_transform(image)
+    return features
+
+
+def get_dataset(tfrecord_path):
+    description = {"image_raw": "byte", "label": "int"}
+    dataset = tfrecord.torch.TFRecordDataset(tfrecord_path, index_path=None, description=description,
+                                             transform=decode_image)
+    return dataset
 
 
 def get_train_dataset(imgs_folder):

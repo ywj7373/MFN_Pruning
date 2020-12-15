@@ -7,19 +7,21 @@ import torch.utils.data as data
 from PIL import Image
 from torch.optim import lr_scheduler
 from torchvision import transforms as trans
+import tensorflow as tf
 
 from evaluation import evaluate, hflip_batch, gen_plot
 from model.model import *
 from parser import args
-from prepare_data import get_train_dataset, get_val_data
+from prepare_data import get_train_dataset, get_val_data, get_dataset
 from pruning.FilterPrunner import FilterPrunner
 from pruning.prune_MFN import prune_MFN
 
 
 def load_data():
     data_path = Path(args.data_path)
-    dataset_train, _ = get_train_dataset(data_path / 'imgs')
-    dataloader = data.DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=2)
+    #dataset_train, _ = get_train_dataset(data_path / 'imgs')
+    dataset_train = get_dataset(args.tfrecord_path)
+    dataloader = data.DataLoader(dataset_train, batch_size=args.batch_size, num_workers=2)
 
     print('Training Data Loaded!')
 
@@ -41,7 +43,10 @@ def train(model, dataloader, epochs=args.epoch_size):
         exp_lr_scheduler.step()
         model.train()
         for det in dataloader:
-            img, label = det[0].to(device), det[1].to(device)
+            img, label = det["image_raw"].to(device), det["label"].numpy()
+            label = np.reshape(label, [-1]).astype(np.int64)
+            label = torch.from_numpy(label).to(device)
+            #img, label = det[0].to(device), det[1].to(device)
             optimizer_ft.zero_grad()
 
             with torch.set_grad_enabled(True):
@@ -63,7 +68,7 @@ def train(model, dataloader, epochs=args.epoch_size):
                           .format(epoch, epochs - 1, total_iters, loss.item(), correct / total))
 
                 # Print validation
-                if total_iters % args.evaluation_interval == 0 and total_iters != 0:
+                if total_iters % args.evaluate_interval == 0 and total_iters != 0:
                     validation(model)
 
                 # Save checkpoints
