@@ -2,16 +2,17 @@ import argparse
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("--options", type=str, default="train", choices=['train', 'prune', 'test'])
+parser.add_argument("--options", type=str, default="train", choices=['train', 'prune', 'load'])
 
 # Path
 base_path = '/content/drive/MyDrive/data/'
-parser.add_argument("--index_path", type=str, default=base_path + "output/ex.index")
+parser.add_argument("--index_path", type=str, default="/content/MFN_Pruning/tran.index")
 parser.add_argument("--tfrecord_path", type=str, default="/content/drive/MyDrive/faces_ms1m_112x112/tfrecords/tran.tfrecords")
 parser.add_argument("--data_path", type=str, default=base_path)
 parser.add_argument("--output_path", type=str, default=base_path + "output")
 parser.add_argument("--ckpt_path", type=str, default=base_path + "output/ckpt")
 parser.add_argument("--saved_model_path", type=str, default=base_path + "output/MobileFaceNet")
+parser.add_argument("--pruned_filters_path", type=str, default="/content/MFN_Pruning/pruned_filters.txt")
 
 # Checkpoints
 parser.add_argument("--summary_interval", type=int, default=100)

@@ -20,7 +20,7 @@ def load_data():
     data_path = Path(args.data_path)
     # dataset_train, _ = get_train_dataset(data_path / 'imgs')
     dataset_train = get_dataset(args.tfrecord_path, args.index_path)
-    dataloader = data.DataLoader(dataset_train, batch_size=args.batch_size)
+    dataloader = data.DataLoader(dataset_train, batch_size=args.batch_size, num_workers=2)
 
     print('Training Data Loaded!')
 
@@ -109,6 +109,7 @@ def prune(model, dataloader):
         prunner = FilterPrunner(modules, use_cuda=True)
         filters_to_prune = getFiltersToPrune(model, prunner)
 
+        savePrunedFilters(args.pruned_filters_path, filters_to_prune)
         layers_prunned = [(k, len(filters_to_prune[k])) for k in
                           sorted(filters_to_prune.keys())]  # k: layer index, number of filters
         print("iter{}. Layers that will be prunned".format(it), layers_prunned)
@@ -162,13 +163,55 @@ def getFiltersToPrune(model, prunner):
             loss = criterion(output, label)
             loss.backward()
 
-        if i_batch == 100:  # only use 1/10 train data
+        if i_batch == 10000:  # only use 1/10 train data
             break
 
     prunner.normalize_ranks_per_layer()
     filters_to_prune = prunner.get_prunning_plan(args.filter_size)
 
     return filters_to_prune
+
+
+def load(model):
+    filters_to_prune = loadPrunedFilters(args.pruned_filters_path)
+
+    for layer_index, filter_index in filters_to_prune.items():
+        model, modules = prune_MFN(model, layer_index, *filter_index, use_cuda=True)
+
+    model.load_state_dict(torch.load(args.saved_model_path, map_location=lambda storage, loc: storage))
+
+
+def loadPrunedFilters(file_path):
+    f = open(file_path, "r")
+    filters_to_prune = {}
+    while True:
+        line = f.readline()
+        line_split = line.split(":")
+        layer = int(line_split[0])
+        if layer not in filters_to_prune:
+            filters_to_prune[layer] = []
+
+        filters = line_split[1].split(",")
+        for filter in filters:
+            filters_to_prune[layer].append(filter)
+
+        if not line:
+            break
+
+    f.close()
+    return filters_to_prune
+
+
+def savePrunedFilters(file_path, filters_to_prune):
+    f = open(file_path, "w")
+    for k in filters_to_prune.keys():
+        filters = filters_to_prune[k]
+        f.write(k + ":")
+        for filter in filters:
+            f.write(str(filter) + ",")
+        f.write("\n")
+
+    f.close()
 
 
 # Print iterations progress
@@ -277,3 +320,5 @@ if __name__ == '__main__':
         train(model, dataloader)
     elif args.options == "prune":
         prune(model, dataloader)
+    elif args.options == "load":
+        load(model)
