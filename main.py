@@ -19,7 +19,7 @@ from pruning.prune_MFN import prune_MFN
 
 def load_data():
     data_path = Path(args.data_path)
-    #dataset_train, _ = get_train_dataset(data_path / 'imgs')
+    # dataset_train, _ = get_train_dataset(data_path / 'imgs')
     dataset_train = get_dataset(args.tfrecord_path)
     dataloader = data.DataLoader(dataset_train, batch_size=args.batch_size, num_workers=2)
 
@@ -46,7 +46,7 @@ def train(model, dataloader, epochs=args.epoch_size):
             img, label = det["image_raw"].to(device), det["label"].numpy()
             label = np.reshape(label, [-1]).astype(np.int64)
             label = torch.from_numpy(label).to(device)
-            #img, label = det[0].to(device), det[1].to(device)
+            # img, label = det[0].to(device), det[1].to(device)
             optimizer_ft.zero_grad()
 
             with torch.set_grad_enabled(True):
@@ -243,7 +243,6 @@ def _evaluate(model, carray, issame, nrof_folds=10, tta=True):
     model.eval()
     idx = 0
     embeddings = np.zeros([len(carray), args.embedding_size])
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     with torch.no_grad():
         while idx + args.batch_size <= len(carray):
@@ -251,7 +250,7 @@ def _evaluate(model, carray, issame, nrof_folds=10, tta=True):
             if tta:
                 flipped = hflip_batch(batch)
                 emb_batch = model(batch.to(device)) + model(flipped.to(device))
-                embeddings[idx:idx + args.batch_size] = l2_norm(emb_batch)
+                embeddings[idx:idx + args.batch_size] = l2_norm(emb_batch).cpu()
             else:
                 embeddings[idx:idx + args.batch_size] = model(batch.to(device)).cpu()
             idx += args.batch_size
@@ -260,8 +259,8 @@ def _evaluate(model, carray, issame, nrof_folds=10, tta=True):
             batch = torch.tensor(carray[idx:])
             if tta:
                 flipped = hflip_batch(batch)
-                emb_batch = model(batch.to(args.device)) + model(flipped.to(device))
-                embeddings[idx:] = l2_norm(emb_batch)
+                emb_batch = model(batch.to(device)) + model(flipped.to(device))
+                embeddings[idx:] = l2_norm(emb_batch).cpu()
             else:
                 embeddings[idx:] = model(batch.to(device)).cpu()
 
