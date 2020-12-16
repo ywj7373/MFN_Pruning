@@ -27,7 +27,7 @@ def load_data():
     return dataloader
 
 
-def train(model, dataloader, epochs=args.epoch_size):
+def train(model, dataloader, epochs=args.epoch_size, is_prune=False):
     margin = Arcface(embedding_size=args.embedding_size, classnum=args.class_size, s=32., m=0.5).to(device)
     criterion = torch.nn.CrossEntropyLoss().to(device)
     optimizer_ft = optim.SGD([
@@ -72,7 +72,10 @@ def train(model, dataloader, epochs=args.epoch_size):
 
                 # Save checkpoints
                 if total_iters % args.save_interval == 0 and total_iters != 0:
-                    save_path = Path(args.ckpt_path)
+                    if is_prune:
+                        save_path = Path(args.pruned_ckpt_path)
+                    else:
+                        save_path = Path(args.ckpt_path)
                     torch.save(model.state_dict(),
                                save_path / ('model_epoch:{}_step:{}.pth'.format(epoch, total_iters)))
                     torch.save(margin.state_dict(),
@@ -82,9 +85,8 @@ def train(model, dataloader, epochs=args.epoch_size):
 
 
 def prune(model, dataloader):
-    # Check output directory
+    # Load Model
     save_dir = args.output_path
-
     model.load_state_dict(torch.load(args.saved_model_path, map_location=lambda storage, loc: storage))
 
     print("Check the initial model accuracy...")
@@ -132,7 +134,7 @@ def prune(model, dataloader):
 
         print("iter{}. Fine tuning to recover from prunning iteration.. ".format(it))
         torch.cuda.empty_cache()
-        train(model, dataloader, epochs=2)
+        train(model, dataloader, epochs=2, is_prune=True)
 
         print("iter{}. after retrain...".format(it))
         since = time.time()
@@ -148,12 +150,14 @@ def prune(model, dataloader):
 def getFiltersToPrune(model, prunner):
     model.train()
     margin = Arcface(embedding_size=args.embedding_size, classnum=args.class_size, s=32., m=0.5).to(device)
+    margin.load_state_dict(torch.load(args.saved_margin_path, map_location=lambda storage, loc: storage))
+
     criterion = torch.nn.CrossEntropyLoss().to(device)
+    criterion.load_state_dict(torch.load(args.saved_optimizer_path, map_location=lambda storage, loc: storage))
 
     prunner.reset()
 
     for i_batch, det in enumerate(dataloader):
-        printProgressBar(i_batch, 10000, prefix='Progress:', suffix='Complete', length=50)
         img, label = det["image_raw"].to(device), det["label"].numpy()
         label = np.reshape(label, [-1]).astype(np.int64)
         label = torch.from_numpy(label).to(device)
@@ -218,28 +222,6 @@ def savePrunedFilters(file_path, filters_to_prune):
         f.write("\n")
 
     f.close()
-
-
-# Print iterations progress
-def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█'):
-    """
-    Call in a loop to create terminal progress bar
-    @params:
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
-    """
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end='\r')
-    # Print New Line on Complete
-    if iteration == total:
-        print()
 
 
 def rearrange(model):

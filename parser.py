@@ -11,9 +11,12 @@ parser.add_argument("--tfrecord_path", type=str, default="/content/drive/MyDrive
 parser.add_argument("--data_path", type=str, default=base_path)
 parser.add_argument("--output_path", type=str, default=base_path + "output")
 parser.add_argument("--ckpt_path", type=str, default=base_path + "output/ckpt")
-parser.add_argument("--saved_model_path", type=str, default=base_path + "output/MobileFaceNet")
+parser.add_argument("--pruned_ckpt_path", type=str, default=base_path + "output/pruned_ckpt")
+parser.add_argument("--saved_model_path", type=str, default=base_path + "output/ckpt/model_epoch:4_step:225000.pth")
+parser.add_argument("--saved_margin_path", type=str, default=base_path + "output/ckpt/head_epoch:4_step:225000.pth")
+parser.add_argument("--saved_optimizer_path", type=str, default=base_path + "output/ckpt/optimizer_epoch:4_step:225000.pth")
 parser.add_argument("--saved_pruned_model_path", type=str, default=base_path + "output/MFN_weights_pruned_3")
-parser.add_argument("--pruned_filters_path", type=str, default="/content/MFN_Pruning/pruned_filters.txt")
+parser.add_argument("--pruned_filters_path", type=str, default=base_path + "output/pruned_filters.txt")
 
 # Checkpoints
 parser.add_argument("--summary_interval", type=int, default=100)
