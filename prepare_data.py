@@ -7,14 +7,59 @@ import torchvision.transforms as transforms
 from PIL import Image, ImageFile
 from torchvision import transforms as trans
 from torchvision.datasets import ImageFolder
-from tfrecord.torch.dataset import TFRecordDataset
 import tfrecord
 from tqdm import tqdm
 from pathlib import Path
 from parser import args
 import io
+import tensorflow as tf
+import os
+import random
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+
+def create_tfrecords(rec_path):
+    '''convert mxnet data to tfrecords.'''
+    id2range = {}
+
+    imgrec = mx.recordio.MXIndexedRecordIO(str(rec_path / 'train.idx'), str(rec_path / 'train.rec'), 'r')
+    s = imgrec.read_idx(0)
+    header, _ = mx.recordio.unpack(s)
+    #print(header.label)
+    imgidx = list(range(1, int(header.label[0])))
+    seq_identity = range(int(header.label[0]), int(header.label[1]))
+    for identity in seq_identity:
+        s = imgrec.read_idx(identity)
+        header, _ = mx.recordio.unpack(s)
+        a, b = int(header.label[0]), int(header.label[1])
+        id2range[identity] = (a, b)
+    print('id2range', len(id2range))
+    print('Number of examples in training set: {}'.format(imgidx[-1]))
+
+    # generate tfrecords
+    mx2tfrecords(imgidx, imgrec)
+
+
+def mx2tfrecords(imgidx, imgrec):
+    output_path = os.path.join(args.tfrecords_file_path, 'tran.tfrecords')
+    if not os.path.exists(args.tfrecords_file_path):
+        os.makedirs(args.tfrecords_file_path)
+    writer = tf.python_io.TFRecordWriter(output_path)
+    random.shuffle(imgidx)
+    for i, index in enumerate(imgidx):
+        img_info = imgrec.read_idx(index)
+        header, img = mx.recordio.unpack(img_info)
+        label = int(header.label)
+        example = tf.train.Example(features=tf.train.Features(feature={
+            'image_raw': tf.train.Feature(bytes_list=tf.train.BytesList(value=[img])),
+            "label": tf.train.Feature(int64_list=tf.train.Int64List(value=[label]))
+        }))
+        writer.write(example.SerializeToString())  # Serialize To String
+        if i % 10000 == 0:
+            print('%d num image processed' % i)
+    print('%d num image processed' % i)
+    writer.close()
 
 
 def load_mx_rec(rec_path):
@@ -103,7 +148,8 @@ if __name__ == '__main__':
     data_path = Path(args.data_path)
 
     # Train dataset
-    load_mx_rec(data_path)
+    #load_mx_rec(data_path)
+    create_tfrecords(data_path)
 
     transform = transforms.Compose([
         transforms.ToTensor(),  # range [0, 255] -> [0.0,1.0]

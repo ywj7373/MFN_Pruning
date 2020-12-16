@@ -64,7 +64,7 @@ def train(model, dataloader, epochs=args.epoch_size, is_prune=False):
                     correct = (np.array(preds.cpu()) == np.array(label.data.cpu())).sum()
 
                     print("Epoch {}/{}, Iters: {:0>6d}, loss: {:.4f}, train_accuracy: {:.4f}"
-                          .format(epoch, epochs - 1, total_iters, loss.item(), correct / total))
+                          .format(epoch+1, epochs, total_iters, loss.item(), correct / total))
 
                 # Print validation
                 if total_iters % args.evaluate_interval == 0 and total_iters != 0:

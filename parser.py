@@ -6,8 +6,11 @@ parser.add_argument("--options", type=str, default="train", choices=['train', 'p
 
 # Path
 base_path = '/content/drive/MyDrive/data/'
+tfrecords_path = "/content/drive/MyDrive/faces_ms1m_112x112/tfrecords/"
+
 parser.add_argument("--index_path", type=str, default="/content/MFN_Pruning/tran.index")
-parser.add_argument("--tfrecord_path", type=str, default="/content/drive/MyDrive/faces_ms1m_112x112/tfrecords/tran.tfrecords")
+parser.add_argument("--tfrecords_file_path", type=str, default=tfrecords_path)
+parser.add_argument("--tfrecord_path", type=str, default=tfrecords_path + "tran.tfrecords")
 parser.add_argument("--data_path", type=str, default=base_path)
 parser.add_argument("--output_path", type=str, default=base_path + "output")
 parser.add_argument("--ckpt_path", type=str, default=base_path + "output/ckpt")

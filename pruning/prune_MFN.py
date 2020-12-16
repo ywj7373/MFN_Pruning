@@ -19,9 +19,9 @@ from model.model import *
 def prune_Conv2d(conv, filter_index, Next=False, use_cuda=True):
     if conv.groups == conv.in_channels:
         new_conv = \
-            torch.nn.Conv2d(in_channels=conv.in_channels - len(filter_index), \
+            torch.nn.Conv2d(in_channels=conv.in_channels - len(filter_index),
                             out_channels=conv.out_channels - len(filter_index),
-                            kernel_size=conv.kernel_size, \
+                            kernel_size=conv.kernel_size,
                             stride=conv.stride,
                             padding=conv.padding,
                             dilation=conv.dilation,
@@ -44,9 +44,9 @@ def prune_Conv2d(conv, filter_index, Next=False, use_cuda=True):
     else:
         if Next:
             new_conv = \
-                torch.nn.Conv2d(in_channels=conv.in_channels - len(filter_index), \
+                torch.nn.Conv2d(in_channels=conv.in_channels - len(filter_index),
                                 out_channels=conv.out_channels,
-                                kernel_size=conv.kernel_size, \
+                                kernel_size=conv.kernel_size,
                                 stride=conv.stride,
                                 padding=conv.padding,
                                 dilation=conv.dilation,
@@ -64,10 +64,8 @@ def prune_Conv2d(conv, filter_index, Next=False, use_cuda=True):
 
         else:
             new_conv = \
-                torch.nn.Conv2d(in_channels=conv.in_channels, \
-                                out_channels=conv.out_channels - len(filter_index),
-                                kernel_size=conv.kernel_size, \
-                                stride=conv.stride,
+                torch.nn.Conv2d(in_channels=conv.in_channels, out_channels=conv.out_channels - len(filter_index),
+                                kernel_size=conv.kernel_size, stride=conv.stride,
                                 padding=conv.padding,
                                 dilation=conv.dilation,
                                 groups=conv.groups,
@@ -240,19 +238,3 @@ def prune_MFN(model, layer_index, *filter_index, use_cuda=True):
             index += 1
 
     return model, modules
-
-
-if __name__ == "__main__":
-    import sys
-
-    sys.path.append('..')
-
-    model = MobileFaceNet(512)
-    model.load_state_dict(torch.load('../Base_Model/MobileFaceNet', map_location=lambda storage, loc: storage))
-
-    layer_index = 16
-    filter_index = (2, 4)
-
-    model, module = prune_MFN(model, layer_index, *filter_index, use_cuda=False)
-    print(module)
-    print(model)
