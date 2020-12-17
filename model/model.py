@@ -1,5 +1,4 @@
 import math
-
 import torch
 from torch import nn
 from torch.nn import Linear, Conv2d, BatchNorm1d, BatchNorm2d, PReLU, Sequential, Module, Parameter

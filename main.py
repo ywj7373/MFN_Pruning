@@ -11,14 +11,12 @@ from torchvision import transforms as trans
 from evaluation import evaluate, hflip_batch, gen_plot
 from model.model import *
 from parser import args
-from prepare_data import get_train_dataset, get_val_data, get_dataset
+from prepare_data import get_val_data, get_dataset
 from pruning.FilterPrunner import FilterPrunner
 from pruning.prune_MFN import prune_MFN
 
 
 def load_data():
-    data_path = Path(args.data_path)
-    # dataset_train, _ = get_train_dataset(data_path / 'imgs')
     dataset_train = get_dataset(args.tfrecord_path, args.index_path)
     dataloader = data.DataLoader(dataset_train, batch_size=args.batch_size, num_workers=2)
 
@@ -45,7 +43,7 @@ def train(model, dataloader, epochs=args.epoch_size, is_prune=False):
             img, label = det["image_raw"].to(device), det["label"].numpy()
             label = np.reshape(label, [-1]).astype(np.int64)
             label = torch.from_numpy(label).to(device)
-            # img, label = det[0].to(device), det[1].to(device)
+
             optimizer_ft.zero_grad()
 
             with torch.set_grad_enabled(True):
@@ -171,7 +169,7 @@ def getFiltersToPrune(model, prunner):
             loss = criterion(output, label)
             loss.backward()
 
-        if i_batch == 10000:  # only use 1/10 train data
+        if i_batch == 100:
             break
 
     prunner.normalize_ranks_per_layer()
@@ -260,11 +258,11 @@ def validation(model):
     accuracy, best_threshold, roc_curve_tensor = _evaluate(model, lfw, lfw_issame, 10, True)
     print('lfw accuracy: {}, threshold: {}'.format(accuracy, best_threshold))
 
-    # accuracy, best_threshold, roc_curve_tensor = _evaluate(model, cfp_fp, cfp_fp_issame, 10, True)
-    # print('cfp_fp accuracy: {}, threshold: {}'.format(accuracy, best_threshold))
-    #
-    # accuracy, best_threshold, roc_curve_tensor = _evaluate(model, agedb_30, agedb_30_issame, 10, True)
-    # print('agedb_30 accuracy: {}, threshold: {}'.format(accuracy, best_threshold))
+    accuracy, best_threshold, roc_curve_tensor = _evaluate(model, cfp_fp, cfp_fp_issame, 10, True)
+    print('cfp_fp accuracy: {}, threshold: {}'.format(accuracy, best_threshold))
+
+    accuracy, best_threshold, roc_curve_tensor = _evaluate(model, agedb_30, agedb_30_issame, 10, True)
+    print('agedb_30 accuracy: {}, threshold: {}'.format(accuracy, best_threshold))
 
 
 def _evaluate(model, carray, issame, nrof_folds=10, tta=True):

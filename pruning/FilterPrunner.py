@@ -36,7 +36,7 @@ class FilterPrunner:
         activation_index = 0
         Res_layers = (7, 10, 13, 16, 22, 25, 28, 31, 34, 37, 43, 46)  # res layers requiring shortcuts
         prunning_layers = (
-            0, 2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44, 47, 16, 37, 46)  # the layers to be prunned
+            2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44, 47, 16, 37)  # the layers to be prunned
         outputs = {}
         for index, module in self.model.items():
             if isinstance(module, Linear_block) and index in Res_layers:
