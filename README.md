@@ -19,6 +19,9 @@ pip install -r requirements.txt
 ## 4. Pruning
 1. Run `python3 main.py --options prune`
 
+## Result
+![img_2.png](img_2.png)
+
 - - -
 ## 5. References
 * [Pruning_MTCNN_MobileFaceNet_Using_Pytorch](https://github.com/xuexingyu24/Pruning_MTCNN_MobileFaceNet_Using_Pytorch)
